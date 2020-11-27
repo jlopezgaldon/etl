@@ -1,0 +1,152 @@
+---
+title: "Generación de ficheros de metadatos y lectura de formatos en R"
+subtitle: "Extracción, Transformación y Carga"
+author: "Jose López Galdón"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## ENUNCIADO:
+
+Como comenté al inicio de la asignatura, nos estamos familiarizando con el trabajo con herramientas Big Data, pero no podemos olvidarnos de que el objetivo es procesar datos.
+
+Es por eso que lo que tenemos que tener como objetivo es la generación de una "librería" de procesamiento de datos.
+
+Que va a comenzar con la lectura y tratamiento de información estructurada sobre fuentes de metainformación que contenga la estructura de los datos con los que trabajamos.
+
+Algunos de estos formatos son yalm y json. Esta tarea consiste en, buscar información sobre estos formatos, e implementar sendas funciones ya sea en R o en python (recomendado), para poder leer este tipo de ficheros. ¿Se pueden leer con spark? ¿Qué tipo de bases de datos No SQL usa estructuras de datos similares?
+
+Deberéis subir un fichero .R o .py con la función definida y algún ejemplo de uso a vuestro repositorio, además de subirlo aquí.
+
+***
+
+## Formato `json`
+
+### ¿Qué es?
+
+Para responder qué es JSON, debemos empezar por decir que sus siglas en inglés son por JavaScript Object Notation. Se trata de un formato para guardar e intercambiar información que cualquier persona pueda leer. Los archivos json contienen solo texto y usan la extensión `.json`.
+
+### ¿Para qué se utiliza un archivo json?
+
+Volviendo a la pregunta inicial de qué es json; JSON es un formato que almacena información estructurada y se utiliza principalmente para transferir datos entre un servidor y un cliente.
+
+El archivo es básicamente una alternativa más simple y liviana al XML (Lenguaje de marcado extenso, por sus siglas en inglés) que cuenta con funciones similares.
+
+Los desarrolladores usan JSON para trabajar con AJAX (JavaScript asíncrono y XML, por sus siglas en inglés). Estos formatos funcionan bien juntos para lograr la carga asincrónica de los datos almacenados, lo que significa que un sitio web puede actualizar su información sin actualizar la página.
+
+Este proceso es más fácil de hacer con JSON que con XML/RSS. Y hoy, como muchos sitios web están adoptando AJAX, el archivo .json se ha vuelto muy popular.
+
+### Sintáxis json
+
+Hay dos elementos centrales en un objeto JSON: claves (*Keys*) y valores (*Values*).
+
+- Las **Keys** deben ser cadenas de caracteres (strings). Como su nombre en español lo indica, estas contienen una secuencia de caracteres rodeados de comillas.
+
+- Los **Values** son un tipo de datos JSON válido. Puede tener la forma de un arreglo (array), objeto, cadena (string), booleano, número o nulo.
+Un objeto JSON comienza y termina con llaves {}. Puede tener dos o más pares de claves/valor dentro, con una coma para separarlos. Así mismo, cada key es seguida por dos puntos para distinguirla del valor.
+
+## ¿Cómo leer archivos json en R?
+
+A través de la librería rjson somos capaces de leer archivos .json. Para demotrarlo, realizaremos un ejemplo cargando la base de datos denominada `data.json`
+
+```{r read json}
+
+  # En primer lugar, cargamos la librería rjson
+library(rjson)
+
+  # En segundo lugar, cargamos los datos
+datos <- fromJSON(file = "../data/01_raw/data.json")
+
+datos
+
+```
+
+Como podemos observar ya tenemos cargado el fichero, si queremos trabajar con el es tan fácil como pasarlo a dataframe:
+
+```{r json to dataframe}
+
+  # Para ello, utilizamos la función as.data.frame()
+datos_df <- as.data.frame(datos)
+
+datos_df
+
+```
+
+***
+
+## Formato `yaml`
+
+### ¿Qué es yaml?
+
+YAML (*Yet Another Markup Language – Ain’t Markup Language*) es un formato de serialización de datos de forma que sea legible por seres humanos. Se inspira en lenguajes como XML, C, Python, Perl, así como el formato para correos electrónicos especificado en RFC 2822.
+
+## Características principales
+
+- Los datos de un documento YAML deben ser legibles, imprimibles y utilizando caracteres Unicode, UTF-8 ó UTF-16.
+- Los comentarios se realizan utilizando el carácter # dentro de la línea que contiene el comentario.
+- Los caracteres , y ; deben ir seguidos de un espacio en blanco. De esta forma, se podrán representar valores que queramos que - tengan esos caracteres.
+- Los espacios en blanco están permitidos, pero no los tabuladores.
+- Las listas comienzan por el caracter – con un valor por cada línea, aunque también se pueden utilizar corchetes *[ ]* poniendo los valores dentro de ellos separados por comas , junto con un espacio en blanco.
+- Un vector estará formado por el par clave/valor, estando separados ambos por : poniendo uno por línea, aunque también podemos utilizar { } poniendo cada uno de ellos dentro separados por comas , junto con un espacio en blanco.
+- Se pueden utilizar caracteres de escape \ para representar caracteres especiales.
+- Para incluir múltiples documentos, los separaremos por tres guiones seguidos --- e indicando el fin de un documento con tres puntos seguidos ...
+
+### Ventajas
+
+- YAML admite comentarios, algo que JSON no.
+- YAML admite también trabajar con tipos de datos complejos.
+- Un documento YAML es más fácil de leer y por lo tanto, más sencillo de cambiar.
+- Un documento YAML es más pequeño que un documento JSON.
+
+### ¿Cómo leer archivos yaml en R?
+
+Mediante el paquete `yaml`.
+
+```{r load yaml}
+
+  # En primer lugar, cargamos la librería yaml
+library(yaml)
+
+  # En segundo lugar, cargamos los datos
+datos <- yaml.load_file("../data/01_raw/categories.yml")
+
+datos
+
+```
+
+***
+
+## Spark
+
+### ¿Se puede leer archivos yaml y json con spark?
+
+Si, se pueden leer ambos tipos de archivos, la diferencia es que podemos leer directamente json, sin embargo, para leer yaml, lo deberemos pasar a json y después a dataframe.
+
+### ¿Qué tipo de bases de datos No SQL usa estructuras de datos similares?
+
+MongoDB es un sistema de base de datos NoSQL, orientado a documentos y de código abierto.
+
+En lugar de guardar los datos en tablas, tal y como se hace en las bases de datos relacionales, MongoDB guarda estructuras de datos BSON (una especificación similar a JSON) con un esquema dinámico, haciendo que la integración de los datos en ciertas aplicaciones sea más fácil y rápida.
+
+MongoDB es una base de datos adecuada para su uso en producción y con múltiples funcionalidades. Esta base de datos se utiliza mucho en la industria, contando con implantaciones en empresas como MTV Network, Craiglist, Foursquare.
+
+***
+
+## Referencias
+
+A., D. (2020, 28 octubre). ¿Qué es JSON? Recuperado de https://www.hostinger.es/tutoriales/que-es-json/Iris
+
+Khalid, M. J. (s. f.). Reading and Writing YAML to a File in Python. Recuperado de https://stackabuse.com/reading-and-writing-yaml-to-a-file-in-python/
+
+MongoDB. (s. f.). En Wikipedia, la enciclopedia libre. Recuperado 22 de noviembre de 2020, de https://es.wikipedia.org/wiki/MongoDB
+
+R - JSON Files - Tutorialspoint. (s. f.). Recuperado de https://www.tutorialspoint.com/r/r_json_files.htm
+
+Stephens, J. (2020, enero). Package ‘yaml’. Recuperado de https://cran.r-project.org/web/packages/yaml/yaml.pdf
